@@ -1,8 +1,8 @@
 ---
 layout: post
-title:  "Television and later films"
-date:   1983-12-16 01:00:00
-date:   1983-12-16 01:00:00
+title:  "program code"
+date:   2017-12-18
+date:   2017-12-18
 excerpt: "Mickey first appeared animated in color in Parade of the Award Nominees in 1932, however the film strip was..."
 categories: history
 tags:  mickey
@@ -13,20 +13,462 @@ bgContrast: dark
 bgGradientOpacity: darker
 syntaxHighlighter: no
 ---
-Source: [Wikipedia](https://en.wikipedia.org/wiki/Mickey_Mouse)
 
-In the 1950s, Mickey became more known for his appearances on television, particularly with The Mickey Mouse Club. Many of his theatrical cartoon shorts were rereleased on television series such as Ink & Paint Club, various forms of the Walt Disney anthology television series, and on home video. Mickey returned to theatrical animation in 1983 with Mickey's Christmas Carol, an adaptation of Charles Dickens' A Christmas Carol in which Mickey played Bob Cratchit. This was followed up in 1990 with The Prince and the Pauper.
+import time
+import smbus
+import RPi.GPIO as GPIO
+import os
+import vlc
 
-Throughout the decades, Mickey Mouse competed with Warner Bros.' Bugs Bunny for animated popularity. But in 1988, in a historic moment in motion picture history, the two rivals finally shared screen time in the Robert Zemeckis Disney/Amblin film Who Framed Roger Rabbit. Disney and Warner signed an agreement stating that each character had exactly the same amount of screen time in the scene, right down to the frame.
+ 
+GPIO.setmode(GPIO.BCM)
+ 
+GPIO.setup(14, GPIO.IN)
+ 
+GPIO.setup(15, GPIO.IN)
+ 
+GPIO.setup(18, GPIO.IN)
+ 
+GPIO.setup(23, GPIO.IN)
 
-Similar to his animated inclusion into a live-action film on Roger Rabbit, Mickey made a featured cameo appearance in the 1990 television special The Muppets at Walt Disney World where he met Kermit the Frog. The two are established in the story as having been old friends. The Muppets have otherwise spoofed and referenced Mickey over a dozen times since the 1970s. Eventually, The Muppets were purchased by the Walt Disney Company in 2004.
+GPIO.setup(27, GPIO.IN)
+ 
+GPIO.setup(22, GPIO.IN)
 
-Mickey appeared on several animated logos for Walt Disney Home Entertainment, starting with the "Neon Mickey" logo and then to the "Sorcerer Mickey" logos used for regular and Classics release titles.
+GPIO.setup(26, GPIO.IN)
 
-His most recent theatrical cartoon short was 2013's Get A Horse! which was preceded by 1995's Runaway Brain, while from 1999 to 2004, he appeared in direct-to-video features like Mickey's Once Upon a Christmas, Mickey, Donald, Goofy: The Three Musketeers and the computer-animated Mickey's Twice Upon a Christmas.
 
-Many television series have centered around Mickey, such as the ABC shows Mickey Mouse Works (1999—2000), Disney's House of Mouse (2001—2003) and Disney Channel's Mickey Mouse Clubhouse (2006–present). Prior to all these, Mickey was also featured as an unseen character in the Bonkers episode "You Oughta Be In Toons".
 
-Mickey has recently been announced to star in two films. One is being based on the Magic Kingdom theme park at the Walt Disney World Resort, while the other is a film idea pitched by Walt Disney Animation Studios veteran Burny Mattinson centering around Mickey, Donald and Goofy.[36]
+I2C_ADDR = 0x27  # I2C device address
+LCD_WIDTH = 16  # Maximum characters per line
 
-Since June 28, 2013, Disney Channel has been airing new 3-minute Mickey Mouse shorts. In these new shorts, Mickey has a more modern appearance, but his appearance is also very close to his original 1928 look.[37]
+
+LCD_CHR = 1  # Mode - Sending data
+LCD_CMD = 0  # Mode - Sending command
+
+LCD_LINE_1 = 0x80  # LCD RAM address for the 1st line
+LCD_LINE_2 = 0xC0  # LCD RAM address for the 2nd line
+LCD_LINE_3 = 0x94  # LCD RAM address for the 3rd line
+LCD_LINE_4 = 0xD4  # LCD RAM address for the 4th line
+
+
+LCD_BACKLIGHT = 0x08  # On
+LCD_BACKLIGHT = 0x00  # Off
+
+ENABLE = 0b00000100  # Enable bit
+
+
+E_PULSE = 0.0005
+E_DELAY = 0.0005
+
+
+bus = smbus.SMBus(1)  # Rev 2 Pi uses 1
+
+
+def lcd_init():
+    # Initialise display
+    lcd_byte(0x33, LCD_CMD)  # 110011 Initialise
+    lcd_byte(0x32, LCD_CMD)  # 110010 Initialise
+    lcd_byte(0x06, LCD_CMD)  # 000110 Cursor move direction
+    lcd_byte(0x0C, LCD_CMD)  # 001100 Display On,Cursor Off, Blink Off
+    lcd_byte(0x28, LCD_CMD)  # 101000 Data length, number of lines, font size
+    lcd_byte(0x01, LCD_CMD)  # 000001 Clear display
+    time.sleep(E_DELAY)
+
+
+def lcd_byte(bits, mode):
+    # Send byte to data pins
+    # bits = the data
+    # mode = 1 for data
+    #        0 for command
+
+    bits_high = mode | (bits & 0xF0) | LCD_BACKLIGHT
+    bits_low = mode | ((bits << 4) & 0xF0) | LCD_BACKLIGHT
+
+    # High bits
+    bus.write_byte(I2C_ADDR, bits_high)
+    lcd_toggle_enable(bits_high)
+
+    # Low bits
+    bus.write_byte(I2C_ADDR, bits_low)
+    lcd_toggle_enable(bits_low)
+
+
+def lcd_toggle_enable(bits):
+    # Toggle enable
+    time.sleep(E_DELAY)
+    bus.write_byte(I2C_ADDR, (bits | ENABLE))
+    time.sleep(E_PULSE)
+    bus.write_byte(I2C_ADDR, (bits & ~ENABLE))
+    time.sleep(E_DELAY)
+
+
+def lcd_string(message, line):
+    # Send string to display
+
+    message = message.ljust(LCD_WIDTH, " ")
+
+    lcd_byte(line, LCD_CMD)
+
+    for x in range(LCD_WIDTH):
+        lcd_byte(ord(message[x]), LCD_CHR)
+
+
+def main():
+    # Main program block
+    # Initialise display
+    lcd_init()
+
+
+if __name__ == '__main__':
+
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        lcd_byte(0x01, LCD_CMD)
+
+        i = 0
+
+
+instance = vlc.Instance()
+ 
+player = instance.media_player_new()
+ 
+path = "/home/pi/Downloads/"
+ 
+a = os.listdir(path)
+ 
+file = ("/home/pi/Downloads/" + a[i])
+
+print(a[i])
+ 
+media = instance.media_new(file)
+ 
+player.set_media(media)
+ 
+time.sleep(1)
+  
+n = 0
+ 
+num = player.get_state()
+
+b = ['3:44 -IU','3:38 - IU','3:43 - IU','5:37 - IU','3:53 - IU','4:26 - IU']
+
+v=0
+
+vol = 50
+
+player.audio_set_volume(100)
+    
+
+while True:
+    num = player.get_state()
+
+    if (num == 3 or num == 4):
+
+        lcd_string(    str(a[i]) + str("")    , LCD_LINE_1)
+        lcd_string(    str(b[v]) + str("")    , LCD_LINE_2)
+     
+    if GPIO.input(14) == 0:
+        #num = player.get_state()
+     
+        n = n + 1
+     
+        if n == 1: # first click music play
+
+            
+     
+            player.play()  # play a[0] possible??
+
+            print(i)
+
+            print('music start')
+     
+            time.sleep(0.5)
+     
+        else:#after, play and pause
+     
+            player.pause()
+     
+            time.sleep(0.5)
+     
+    if GPIO.input(15) == 0: #next music play #time sleep problem?
+            #num = player.get_state()
+
+        i = i + 1
+
+        v = v + 1
+     
+        if (i==len(a)): #if now play last > back to a[0]
+     
+            player.stop()
+     
+            i = 0
+
+            v = 0
+                
+            print(i)
+
+            print('fisrt music')
+     
+            file = ("/home/pi/Downloads/" + a[i])
+            media = instance.media_new(file)
+            player.set_media(media)
+     
+            player.play()
+     
+            time.sleep(0.5)
+     
+
+
+        else:
+
+            print(i)
+      
+            player.stop()
+
+                #new i value receive?
+            file = ("/home/pi/Downloads/" + a[i])
+            media = instance.media_new(file)
+            player.set_media(media)
+     
+     
+            player.play()
+
+            lcd_string(    str(a[i])     , LCD_LINE_1)
+
+
+            print('next music')
+     
+            time.sleep(0.5)
+     
+     
+    if GPIO.input(18) == 0: #previous music
+        #num = player.get_state()
+
+        i = i - 1
+
+        v = v - 1
+     
+        if (i <= -1): #if now play a[0] > go to last music
+                
+            player.stop()
+
+            i = len(a)
+
+            v = 6
+
+            print(i)
+
+            print('last music')
+     
+            file = ("/home/pi/Downloads/" + a[i])
+            media = instance.media_new(file)
+            player.set_media(media)
+            player.play()
+
+            time.sleep(0.5)
+
+        else:
+            player.stop()
+
+            print(i)
+
+            print('previous music')
+     
+            file = ("/home/pi/Downloads/" + a[i])
+            media = instance.media_new(file)
+            player.set_media(media)
+            player.play()
+
+            time.sleep(0.5)
+    
+    if GPIO.input(27) == 0:   #volume down
+
+        vol = vol - 10
+
+        player.audio_set_volume(vol)
+
+        print("down")
+        
+    if GPIO.input(22) == 0:    #volume up
+        vol = vol + 10
+
+        player.audio_set_volume(vol)        
+
+        print("up")
+
+    if GPIO.input(23) == 0: #program stop
+        num = player.get_state()
+     
+        if(num==3 or num ==4):
+     
+            player.stop()
+
+            lcd_string(     str("")    , LCD_LINE_1)
+            lcd_string(     str("")    , LCD_LINE_2)
+            
+            time.sleep(0.5)
+
+            break
+
+    if GPIO.input(26) == 0:
+        player.stop()
+        i = 0
+        instance = vlc.Instance()
+        player = instance.media_player_new()
+        path = "/home/pi/Music/"
+        a = os.listdir(path)
+        file = ("/home/pi/Music/" + a[i])
+        media = instance.media_new(file)
+        player.set_media(media)
+        time.sleep(1)
+        
+        n = 0
+    
+        num = player.get_state()
+        c = ['5.:12 - Piano', '5:00 - Piano', '3:52 - Piano']
+
+        v = 0
+        
+
+        lcd_string(    str("List change")   , LCD_LINE_1)
+        lcd_string(    str("")    , LCD_LINE_2)
+        
+
+        while True:
+            num = player.get_state()
+
+            if (num == 3 or num == 4):
+ 
+                lcd_string(    str(a[i]) + str("")    , LCD_LINE_1)
+                lcd_string(    str(c[v]) + str("")    , LCD_LINE_2)
+            if GPIO.input(14) == 0:
+                if n == 0:# first click music play
+                    n = n + 1
+                         
+
+                    print(i)
+     
+                    print('music start')
+
+                    player.play()
+                    time.sleep(0.5)
+                        
+                else:#after, play and pause
+                    player.pause()
+                    time.sleep(0.5)
+     
+     
+            if GPIO.input(15) == 0: #next music play #time sleep problem?
+                #num = player.get_state()
+                i = i + 1
+     
+                v = v + 1
+                if (i==len(a)): #if now play last > back to a[0]
+         
+                    player.stop()
+         
+                    i = 0
+     
+                    v = 0
+                    
+                    print(i)
+     
+                    print('fisrt music')
+         
+                    file = ("/home/pi/Music/" + a[i])
+                    media = instance.media_new(file)
+                    player.set_media(media)         
+                    player.play()
+         
+                    time.sleep(0.5)
+     
+                else:
+     
+                    print(i)
+          
+                    player.stop()#new i value receive?
+                    
+                    file = ("/home/pi/Music/" + a[i])
+                    media = instance.media_new(file)
+                    player.set_media(media)
+         
+         
+                    player.play()
+    
+                    lcd_string(    str(a[i])     , LCD_LINE_1)     
+     
+                    print('next music')
+         
+                    time.sleep(0.5)
+         
+         
+            if GPIO.input(18) == 0: #previous music
+                    
+                    #num = player.get_state()
+                i = i - 1
+     
+                v = v - 1
+     
+                if (i <= -1): #if now play a[0] > go to last music
+                    
+                    player.stop()
+     
+                    i = 5
+     
+                    v = 5
+     
+                    print(i)
+     
+                    print('last music')
+         
+                    file = ("/home/pi/Music/" + a[i])
+                    media = instance.media_new(file)
+                    player.set_media(media)
+                    player.play()
+     
+                    time.sleep(0.5)
+
+                else:
+                    player.stop()
+                             
+                    print(i)
+                    print('previous music')
+         
+                    file = ("/home/pi/Music/" + a[i])
+                    media = instance.media_new(file)
+                    player.set_media(media)
+                    player.play()
+     
+                    time.sleep(0.5)
+                    
+            if GPIO.input(27) == 0:   #volume down
+
+                vol = vol - 10
+
+                player.audio_set_volume(vol)
+
+                print("down")
+                        
+            if GPIO.input(22) == 0:    #volume up
+                vol = vol + 10
+
+                player.audio_set_volume(vol)        
+
+                print("up")
+
+         
+            if GPIO.input(23) == 0: #program stop
+                num = player.get_state()
+
+                if(num==3 or num ==4):
+                    player.stop()
+     
+                    lcd_string(     str("")    , LCD_LINE_1)
+                    lcd_string(     str("")    , LCD_LINE_2)
+                
+                    time.sleep(0.5)     
+                    break
