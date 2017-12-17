@@ -13,4 +13,18 @@ bgContrast: dark
 bgGradientOpacity: darker
 syntaxHighlighter: no
 ---
-![](https://github.com/hongtuna/hongtuna.github.io/blob/master/assets/images/hero/33.png)
+## 첫 프로토타입
+![8.jpeg](https://github.com/hongtuna/hongtuna.github.io/blob/master/assets/images/hero/8.jpeg)
+
+![2.jpeg](https://github.com/hongtuna/hongtuna.github.io/blob/master/assets/images/hero/2.jpeg)
+
+## 수정된 최종 프로토타입
+사용자 니즈에 맞춰진 디자인
+
+![4.png](https://github.com/hongtuna/hongtuna.github.io/blob/master/assets/images/hero/4.png)
+
+![33.png](https://github.com/hongtuna/hongtuna.github.io/blob/master/assets/images/hero/33.png)
+
+![5.png](https://github.com/hongtuna/hongtuna.github.io/blob/master/assets/images/hero/5.png)
+
+
