@@ -7,7 +7,7 @@ excerpt: "Mickey first appeared animated in color in Parade of the Award Nominee
 categories: history
 tags:  mickey
 image:
-  feature: mickey-1940.jpg
+  feature: yy.jpeg
   topPosition: -200px
 bgContrast: dark
 bgGradientOpacity: darker
@@ -15,5 +15,6 @@ syntaxHighlighter: no
 ---
 Source: https://www.youtube.com/channel/UC8uTzRdPnRTrs93HmtwWHjw
 
+![](https://github.com/hongtuna/hongtuna.github.io/blob/master/assets/images/hero/yy.jpeg)
 
 
