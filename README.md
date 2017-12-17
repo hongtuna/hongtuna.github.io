@@ -1,6 +1,6 @@
-# Mickey
+# CH22 PLUG & GENIE
 
-Mickey is a minimal one-column, responsive theme for [Jekyll](http://jekyllrb.com).
+2017013327 홍정민 
 
 It's inspired by [Hyde](http://hyde.getpoole.com), [Medium](http://medium.com), and [Squarespace](http://squarespace.com).
 
