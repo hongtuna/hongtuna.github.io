@@ -13,4 +13,4 @@ bgContrast: dark
 bgGradientOpacity: darker
 syntaxHighlighter: no
 ---
-이미지
+![](https://github.com/hongtuna/hongtuna.github.io/blob/master/assets/images/hero/33.png)
